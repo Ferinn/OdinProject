@@ -1,0 +1,19 @@
+.oddClass {
+    background-color: #fa4b70;
+    font-family: 'Verdana', 'DejaVu Sans', sans-serif;
+}
+
+#second {
+    color: #4b89fa;
+    font-size: 36px;
+}
+
+.extraOddClass {
+    font-size: 24px;
+}
+
+#fourth {
+    background-color: #4bfa8e;
+    font-size: 24px;
+    font-weight: bold;
+}
