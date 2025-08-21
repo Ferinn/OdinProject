@@ -1,0 +1,110 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+body {
+  height: 100vh;
+  margin: 0;
+  overflow: hidden;
+  font-family: Roboto, sans-serif;
+
+  display: flex;
+  flex-direction: column;
+}
+
+img {
+  width: 600px;
+}
+
+button {
+  font-family: Roboto, sans-serif;
+  border: none;
+  border-radius: 8px;
+  background: #eee;
+}
+
+input {
+  border: 1px solid #ddd;
+  border-radius: 16px;
+  padding: 8px 24px;
+  width: 400px;
+}
+
+.header
+{
+    display: flex;
+    align-items: start;
+    justify-content: center;
+
+    flex: 1;
+}
+
+.left-links
+{
+    display: flex;
+    justify-content: left;
+    flex: 1;
+    gap: 15px;
+
+    margin: 15px;
+}
+
+.right-links
+{
+    display: flex;
+    justify-content: right;
+    flex: 1;
+    gap: 15px;
+
+    margin: 15px;
+}
+
+.content
+{
+    flex: 2 1 0;
+
+    display: flex;
+    justify-content: left;
+    align-items: center;
+    flex-direction: column;
+}
+
+.footer
+{
+    flex: 1;
+
+    display: flex;
+    align-items: end;
+    justify-content: center;
+}
+
+ul
+{
+    list-style-type: none;
+    margin: 0px;
+    padding: 0px;
+}
+
+/* Link styling*/
+
+/* Default link */
+a:link {
+  color: black;
+  text-decoration: none;
+}
+
+/* visited link */
+a:visited {
+  color: black;
+    text-decoration: none;
+}
+
+/* mouse over link */
+a:hover {
+  color: gray;
+
+}
+
+/* selected link */
+a:active {
+  color: black;
+    text-decoration: none;
+}
