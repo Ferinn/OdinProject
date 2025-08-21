@@ -1,23 +1,38 @@
-.text
+*
 {
     color: black;
     font-family: 'Times New Roman', Times, serif;
     font-size: small;
 }
 
-.heading1
+h1
 {
-    font-size: larger;
+    font-size: xx-large;
 }
-
-.heading2
+h2
+{
+    font-size: x-large;
+}
+h3
 {
     font-size: large;
 }
 
-.heading3
+a
 {
-    font-size: medium;
+    color: black;
+    font-weight: bold;
+    text-decoration: underline;
+}
+
+button
+{
+    width: 250px;
+}
+
+.large
+{
+    font-size: x-large;
 }
 
 .bckBtn
@@ -25,4 +40,11 @@
     background-color: orangered;
     color: black;
     align-self: auto;
+    width: 375px;
+}
+
+.background
+{
+    background-color: whitesmoke;
+    width: 375px;
 }
