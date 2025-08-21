@@ -1,0 +1,28 @@
+.text
+{
+    color: black;
+    font-family: 'Times New Roman', Times, serif;
+    font-size: small;
+}
+
+.heading1
+{
+    font-size: larger;
+}
+
+.heading2
+{
+    font-size: large;
+}
+
+.heading3
+{
+    font-size: medium;
+}
+
+.bckBtn
+{
+    background-color: orangered;
+    color: black;
+    align-self: auto;
+}
