@@ -1,0 +1,76 @@
+*
+{
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 18px;
+}
+
+button
+{
+    width: 100px;
+
+    border-radius: 5px;
+}
+
+.vertical-container
+{
+    display:flex;
+    width: 600px;
+    flex-direction: column;
+    align-items: center;
+    gap:30px;
+    
+    background-color: white;
+    padding: 20px;
+}
+
+.horizontal-container
+{
+    display:flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.score-block
+{
+    display:flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 200px;
+    height: 50px;
+    outline: 2px solid black;
+
+    font-size: large;
+    font-weight: 900;
+
+    
+}
+
+.score-block.winner
+{
+    background-color: greenyellow;
+}
+
+.score-block.loser
+{
+    background-color: red;
+}
+
+.score-block.tied
+{
+    background-color: gray;
+}
+
+#rps-diagram
+{
+    width: 500px;
+    height: auto;
+}
+
+#announcement
+{
+    font-weight: 900;
+    font-size: x-large;
+    color: red;
+    text-decoration: underline;
+}

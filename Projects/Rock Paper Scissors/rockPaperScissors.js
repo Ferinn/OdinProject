@@ -1,33 +1,17 @@
 let playerScore = 0;
 let computerScore = 0;
 
-for (let i = 0; i < 5; i++)
-{
-    play();
-}
-console.log("Final scores:" +
-            "\nPlayer: " + playerScore +
-            "\nComputer: " + computerScore);
-if (playerScore > computerScore)
-{
-    console.log("Player won the game!! :-)");
-}
-else if (playerScore < computerScore)
-{
-    console.log("Computer won the game!! :-(");
-}
-else
-{
-    console.log("The entire game is a draw!! :-/");
-}
+let currentChoice = "";
 
+attachListeners();
+const playerScoreBlock = document.querySelector("#player");
+const computerScoreBlock = document.querySelector("#computer");
+const announcement = document.querySelector("#announcement");
 
 function play()
 {
     let computerChoice = getComputerChoice();
-    let playerChoice = getPlayerChoice();
 
-    console.log("Player chose: " + playerChoice);
     console.log("Computer chose: " + computerChoice);
 
     if (playerChoice === null)
@@ -38,60 +22,88 @@ function play()
     }
     else
     {
-        playerChoice = playerChoice.toUpperCase();
-        computerChoice = computerChoice.toUpperCase();
-
         if (computerChoice === playerChoice)
         {
-            console.log("It's a draw!");
+            score(-1);
+            
             return;
         }
 
-        if (playerChoice === "ROCK")
+        if (playerChoice === "rock")
         {
-            if (computerChoice === "PAPER")
+            if (computerChoice === "paper")
             {
-                score(false);
+                score(0);
                 return;
             }
-            score(true);
+            score(1);
         }
-        else if (playerChoice === "PAPER")
+        else if (playerChoice === "paper")
         {
-            if (computerChoice === "SCISSORS")
+            if (computerChoice === "scissors")
             {
-                score(false);
+                score(0);
                 return;
             }
-            score(true);
+            score(1);
         }
-        else if (playerChoice === "SCISSORS")
+        else if (playerChoice === "scissors")
         {
-            if (computerChoice === "ROCK")
+            if (computerChoice === "rock")
             {
-                score(false);
+                score(0);
                 return;
             }
-            score(true);
+            score(1);
         }
     }
 }
 
-function score(lastWonPlayer)
+function score(lastWinner)
 {
-    if (lastWonPlayer === true)
+    if (lastWinner === 1)
     {
         playerScore++;
         console.log("Player wins! :-)")
+
+        setWinner(playerScoreBlock);
+        setLoser(computerScoreBlock);
+
+        announcement.textContent = "Round won by player!";
     }
-    else
+    else if (lastWinner === 0)
     {
         computerScore++;
         console.log("Computer wins! :-(")
+        setWinner(computerScoreBlock);
+        setLoser(playerScoreBlock);
+
+        announcement.textContent = "Round won by computer!";
+    }
+    else if (lastWinner === -1)
+    {
+        console.log("It's a draw!");
+        setTied(playerScoreBlock);
+        setTied(computerScoreBlock);
+
+        announcement.textContent = "Round is a tie!";
     }
 
     console.log("Player's score: " + playerScore);
+    playerScoreBlock.textContent = "Player Score: " + playerScore;
     console.log("Computer's score: " + computerScore);
+    computerScoreBlock.textContent = "Computer Score: " + computerScore;
+
+    if (playerScore === 5 || computerScore === 5)
+    {
+        gameEnd(lastWinner);
+    }
+}
+
+function gameEnd(winner)
+{
+    let winnerString = winner === 1 ? "player" : "computer";
+    announcement.textContent = "Congratulations to " + winnerString + " for winning the game!";
 }
 
 function getComputerChoice()
@@ -109,19 +121,74 @@ function getComputerChoice()
     }
 }
 
-function getPlayerChoice()
+function setPlayerChoiceRock()
 {
-    let choice = prompt("Type 'rock' 'paper' or 'scissors' to enter your choice!", null);
+    console.log("Player chose rock");
+    playerChoice = "rock";
+    play();
+}
 
-    switch (choice)
+function setPlayerChoicePaper()
+{
+    console.log("Player chose paper");
+    playerChoice = "paper";
+    play();
+}
+
+function setPlayerChoiceScissors()
+{
+    console.log("Player chose scissors");
+    playerChoice = "scissors";
+    play();
+}
+
+function attachListeners()
+{
+    let btns = document.querySelectorAll("button")
+    for (let i = 0; i < btns.length; i++)
     {
-        case "rock":
-            return "rock";
-        case "paper":
-            return "paper";
-        case "scissors":
-            return "scissors";
+        let id = btns[i].id.toString();
+        switch (id)
+        {
+            case "rock":
+                btns[i].addEventListener("click", setPlayerChoiceRock);
+                break;
+            case "paper":
+                btns[i].addEventListener("click", setPlayerChoicePaper);
+                break;
+            case "scissors":
+                btns[i].addEventListener("click", setPlayerChoiceScissors);
+                break;
+        }
     }
-    console.log("Invalid choice!")
-    return null;
+}
+
+function setWinner(scoreBlock)
+{
+    if (!scoreBlock.classList.contains("winner"))
+    {
+        scoreBlock.classList.remove("loser");
+        scoreBlock.classList.remove("tied");
+        scoreBlock.classList.add("winner");
+    }
+}
+
+function setLoser(scoreBlock)
+{
+    if (!scoreBlock.classList.contains("loser"))
+    {
+        scoreBlock.classList.add("loser");
+        scoreBlock.classList.remove("tied");
+        scoreBlock.classList.remove("winner");
+    }
+}
+
+function setTied(scoreBlock)
+{
+    if (!scoreBlock.classList.contains("tied"))
+    {
+        scoreBlock.classList.remove("loser");
+        scoreBlock.classList.add("tied");
+        scoreBlock.classList.remove("winner");
+    }
 }

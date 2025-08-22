@@ -3,9 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
     <title>Rock Paper Scissors</title>
 </head>
 <body>
+    <div class="vertical-container">
+        <div>
+            <h1>Rock Paper Scissors</h1>
+            <p>Compete with the computer by selecting your choice using the buttons below!<br>
+               First to reach 5 points wins!</p>
+        </div>
+        
+        <img id="rps-diagram" src="images/rps-diagram.png">
+        
+        <div>
+            <button id="rock">Rock</button>
+            <button id="paper">Paper</button>
+            <button id="scissors">Scissors</button>
+        </div>
+        <div class="horizontal-container">
+            <div id="player" class="score-block tied">
+                Player Score: 0
+            </div>
+            <div id="computer" class="score-block tied">
+                Computer Score: 0
+            </div>
+        </div>
+        <div>
+            <h1 id="announcement">Tied!</h1>
+        </div>
+    </div>
+
+
     <script src="rockPaperScissors.js"></script>
 </body>
 </html>
