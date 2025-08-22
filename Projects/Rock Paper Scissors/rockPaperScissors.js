@@ -1,7 +1,26 @@
 let playerScore = 0;
 let computerScore = 0;
 
-play();
+for (let i = 0; i < 5; i++)
+{
+    play();
+}
+console.log("Final scores:" +
+            "\nPlayer: " + playerScore +
+            "\nComputer: " + computerScore);
+if (playerScore > computerScore)
+{
+    console.log("Player won the game!! :-)");
+}
+else if (playerScore < computerScore)
+{
+    console.log("Computer won the game!! :-(");
+}
+else
+{
+    console.log("The entire game is a draw!! :-/");
+}
+
 
 function play()
 {
