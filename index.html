@@ -5,17 +5,28 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Odin Projects Overview</title>
+        <link rel="stylesheet" href="GitHub Pages/styles.css">
     </head>
     
-    <body>
-        <h1>Odin Projects Overview</h1>
-        <p>Learning basic web development skills, such as HTML, CSS, Javascript and react.</p>
-        <h1>Projects Overview</h1>
-        <ul>
-            <li><a href="Projects/HTML-Recipes/index.html"><strong>HTML-Recipes</strong></a></li>
-            <li><a href="Projects/Excercises/CSS-Excercises/crossroads.html"><strong>CSS-Excercises</strong></a></li>
-            <li><a href="Projects/Landing Page/index.html"><strong>Landing Page</strong></a></li>
-            <li><a href="Projects/Rock Paper Scissors/index.html"><strong>Rock Paper Scissors</strong></a></li>
-        </ul>
+    <body>  
+        <div class="vertical-container">
+            <div id="odin-logo-container">
+                <img src="GitHub Pages/Odin Project Logo.png" id="odin-logo">
+            </div>
+            <div id="subtitle">
+                Learning basic web development skills, such as HTML, CSS, Javascript and react.
+            </div>
+        </div>
+
+        <div class="vertical-container">
+            <h2>Projects Overview</h2>
+            <button class="project-card" id="HTML-Recipes">HTML-Recipes</button>
+            <button class="project-card" id="CSS-Excercises">CSS-Excercises</button>
+            <button class="project-card" id="Landing-Page">Landing-Page</button>
+            <button class="project-card" id="Rock-Paper-Scissors">Rock-Paper-Scissors</button>
+            <button class="project-card" id="Etch-A-Sketch">Etch-A-Sketch</button>
+        </div>
+
+        <script src="GitHub Pages/redirect.js"></script>
     </body>
 </html>
