@@ -50,6 +50,11 @@
     background-color: whitesmoke;
     outline: 3px solid black;
 }
+#resolve
+{
+    height: 25px;
+    background-color: lightslategray;
+}
 
 #error-box
 {

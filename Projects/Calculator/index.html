@@ -5,19 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calculator</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="calc.js"></script>
 </head>
 <body>
     <div class="vertical-container" id="page-container">
         <div id="formula-box">
-            <p>This is where the formula will display!</p>
+            This is where the formula will display!
         </div>
         <p id="error-box">This is where errors will display!</p>
+        <button class="operator" id="resolve"><strong>=</strong> Resolve</button>
 
         <button class="operator" id="plus"><strong>+</strong> Plus</button>
         <button class="operator" id="minus"><strong>-</strong> Minus</button>
         <button class="operator" id="multiply"><strong>*</strong> Multiply</button>
         <button class="operator" id="divide"><strong>/</strong> Divide</button>
     </div>
+
+    <script src="calc.js"></script>
 </body>
 </html>
