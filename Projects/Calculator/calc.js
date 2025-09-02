@@ -1,3 +1,4 @@
+// const objects
 const btnIds =
 {
     "plus" : "+",
@@ -9,28 +10,74 @@ const allowedKeys =
 [
     0, 1, 2, 3, 4, 5, 6, 7, 8, 9
 ]
+const nodeTypes = Object.freeze(
+{
+    ROOT : -1,
+    VALUE : 0,
+    OPERATION : 1
+});
+// ---
+
 // DOM objects initialisation
 const formulaBox = document.querySelector("#formula-box");
 const errorBox = document.querySelector("#error-box");
 listenToButtons();
+listenToKeyboard();
 // ---
 
-// operations initialisation
-let operation
+// Class declaration
+class MathNode
 {
-    operandA = 0;
-    operator = "+";
-    operandB = 0;
-}
+    constructor(_operandA, _operator, isRoot)
+    {
+        // value = this node is only a value
+        // operation = this node contains two values and a operator
+        // root = this node is the first node of the formula
+        if (isRoot === true)
+        {
+            this.nodeType = nodeTypes.ROOT;
+        }
+        else if (_operator !== undefined)
+        {
+            this.nodeType = nodeTypes.OPERATION;
+        }
+        else {this.nodeType = nodeTypes.VALUE;}
 
-let operations = new Array(9);
-let lastOperation = -1;
+        this.operandA = _operandA;
+        this.operator = _operator;
+        this.operandB = undefined;
+    }
+    resolve()
+    {
+        if (this.nodeType === nodeTypes.VALUE)
+        {
+            return this.operandA;
+        }
+        else if (this.nodeType === nodeTypes.OPERATION)
+        {
+            switch (this.operator)
+            {
+                case "+":
+                    return this.operandA.resolve() + this.operandB.resolve();
+                case "-":
+                    return this.operandA.resolve() - this.operandB.resolve();
+                case "*":
+                    return this.operandA.resolve() * this.operandB.resolve();
+                case "/":
+                    return this.operandA.resolve() / this.operandB.resolve();
+            }
+        }
+        return 0;
+    }
+}
+let nodeTree = [];
+let lastNode = undefined;
+let rootNode = undefined;
 
 let mainString = "";
 // ---
 
-
-
+// listener initialisation
 function listenToButtons()
 {
     let _buttons = document.querySelectorAll("button");
@@ -39,7 +86,7 @@ function listenToButtons()
         let id = _buttons[i].id;
         if (id === "resolve")
         {
-            _buttons[i].addEventListener("click", resolve);
+            _buttons[i].addEventListener("click", resolveAll);
         }
         else
         {
@@ -52,41 +99,81 @@ function listenToKeyboard()
 {
     document.addEventListener("keyup", (e) => addOperand(e.key));
 }
+// ---
 
+// button actions
 function addOperator(type)
 {
-    if (lastOperation === -1)
+    if (lastNode === undefined)
     {
-        error("Can't start formula with an operator");
+        error("Can't start the formula with an operator");
+    }
+    else if (lastNode.nodeType === nodeTypes.ROOT)
+    {
+        lastNode.nodeType = nodeTypes.OPERATION;
+        lastNode.operator = type;
     }
     else
     {
-        let lastOperand = operations[lastOperation].operandB;
-        let newOperation = new Object({operandA : lastOperand, operator : type, operandB : 0});
-        addOperation(newOperation);
+        let newNode = new MathNode(lastNode, type);
+        addNode(newNode);
         mainString += type;
     }
     update();
 }
 
-function addOperand(key)
+function addOperand(stringKey)
 {
+    let key = parseInt(stringKey, 10);
     if (verifyKey(key))
     {
-        if (lastOperation === -1)
+        if (lastNode === undefined)
         {
-            let newOperation = new Object({operandA : key, operator : "+", operandB : 0});
-            addOperation(newOperation);
-            mainString += key;
+            let newNode = new MathNode(new MathNode(key), undefined, true);
+            rootNode = newNode;
+            addNode(newNode);
         }
+        else if (lastNode.nodeType === nodeTypes.VALUE)
+        {
+            lastNode.operandA = appendDigit(lastNode.operandA, key);
+        }
+        else if (lastNode.nodeType === nodeTypes.OPERATION)
+        {
+            // handling cases when the second operand of an operation is being appended into 
+            // a multi-digit number, or initilised for the first time
+            if (lastNode.operandB !== undefined)
+            {
+                lastNode.operandB.operandA = appendDigit(lastNode.operandB.operandA, key);
+            }
+            else
+            {
+                let newNode = new MathNode(key);
+                lastNode.operandB = newNode;
+            }
+        }
+
+        mainString += stringKey;
+        update();
     }
 }
 
-function resolve()
+function resolveAll()
 {
-    mainString += "done";
-    update();
+    if (lastNode === undefined)
+    {
+        error("Cannot evaluate formula, formula incomplete!");
+    }
+    if (lastNode.operandB !== undefined)
+    {
+        mainString = rootNode.resolve();
+        update();
+    }
+    else
+    {
+        error("Cannot evaluate formula, last binary operator has no second operand!");
+    }
 }
+// ---
 
 function update()
 {
@@ -98,20 +185,27 @@ function error(message)
     errorBox.textContent = message;
 }
 
-function addOperation(operation)
+function addNode(newNode)
 {
-    operations.push(operation);
-    lastOperation++;
+    nodeTree.push(newNode);
+    lastNode = newNode;
 }
 
 function verifyKey(key)
 {
+    let intKey = parseInt(key, 10);
     for (let i = 0; i < allowedKeys.length; i++)
     {
-        if (key === allowedKeys[i])
+        if (intKey === allowedKeys[i])
         {
             return true;
         }
     }
     return false;
 }
+
+function appendDigit(a, b)
+{
+    return parseInt(a.toString() + b.toString(), 10);
+}
+// ---
