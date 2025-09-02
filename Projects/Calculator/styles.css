@@ -1,0 +1,65 @@
+*
+{
+    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+    color: black;
+    box-sizing: border-box;
+}
+
+.vertical-container
+{
+    display:flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+
+    background-color: white;
+    outline: 6px solid black;
+
+    padding: 10px;
+}
+
+
+
+.operator
+{
+    flex: 1 1 auto;
+
+    background-color: gray;
+    color: black;
+
+    font-size: xx-large;
+    font-weight: 900;
+
+    border-radius: 5px;
+    height: 50px;
+}
+
+#formula-box
+{
+    flex: 1 1 auto;
+    height: 30vh;
+
+    padding: 30px;
+
+    font-size: xx-large;
+    font-weight: 900;
+    font-style: italic;
+
+    border-radius: 5px;
+    height: 50px;
+
+    background-color: whitesmoke;
+    outline: 3px solid black;
+}
+
+#error-box
+{
+    color:red;
+    background-color: aliceblue;
+    font-weight: 900;
+    font-style: italic;
+}
+
+#page-container
+{
+    height: 98vh;
+}
