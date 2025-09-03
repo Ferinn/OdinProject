@@ -6,7 +6,8 @@ let projectToIndexPairs =
     "CSS-Excercises" : "Projects/Excercises/CSS-Excercises/crossroads.html",
     "Landing-Page" : "Projects/Landing Page/index.html",
     "Rock-Paper-Scissors" : "Projects/Rock Paper Scissors/index.html",
-    "Etch-A-Sketch" : "Projects/Etch A Sketch/index.html"
+    "Etch-A-Sketch" : "Projects/Etch A Sketch/index.html",
+    "Calculator" : "Projects/Calculator/index.html"
 }
 
 for (let i = 0; i < buttons.length; i++)
