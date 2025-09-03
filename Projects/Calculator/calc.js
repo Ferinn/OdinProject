@@ -6,10 +6,15 @@ const btnIds =
     "multiply" : "*",
     "divide" : "/"
 }
-const allowedKeys =
+const allowedNumKeys =
 [
     0, 1, 2, 3, 4, 5, 6, 7, 8, 9
 ]
+const allowedOperatorKeys =
+[
+    "+", "-", "*", "/", "=", "Enter"
+]
+// primitive enum
 const nodeTypes = Object.freeze(
 {
     ROOT : -1,
@@ -30,9 +35,9 @@ class MathNode
 {
     constructor(_operandA, _operator, isRoot)
     {
-        // value = this node is only a value
-        // operation = this node contains two values and a operator
-        // root = this node is the first node of the formula
+        // VALUE = this node is only a value
+        // OPEARTION = this node contains two values and a operator
+        // ROOT = this node is the first node of the formula
         if (isRoot === true)
         {
             this.nodeType = nodeTypes.ROOT;
@@ -49,30 +54,30 @@ class MathNode
     }
     resolve()
     {
-        if (this.nodeType === nodeTypes.VALUE)
+        // guard to return valid value of ROOT and VALUE nodes
+        if (this.nodeType === nodeTypes.VALUE || this.nodeType === nodeTypes.ROOT && this.operator === undefined)
         {
-            return this.operandA;
+            return (this.nodeType === nodeTypes.ROOT) ? this.operandA.resolve() : this.operandA;
         }
-        else if (this.nodeType === nodeTypes.OPERATION)
+        // recursive evaluation of operations; order of operations is already built at newOperator() with root chaining
+        if (this.nodeType === nodeTypes.OPERATION)
         {
+            let L = this.operandA.resolve();
+            let R = this.operandB.resolve();
             switch (this.operator)
             {
-                case "+":
-                    return this.operandA.resolve() + this.operandB.resolve();
-                case "-":
-                    return this.operandA.resolve() - this.operandB.resolve();
-                case "*":
-                    return this.operandA.resolve() * this.operandB.resolve();
-                case "/":
-                    return this.operandA.resolve() / this.operandB.resolve();
+                case "+": return L + R;
+                case "-": return L - R;
+                case "*": return L * R;
+                case "/": return L / R;
             }
         }
         return 0;
     }
 }
 let nodeTree = [];
+let root = undefined;
 let lastNode = undefined;
-let rootNode = undefined;
 
 let mainString = "";
 // ---
@@ -107,71 +112,148 @@ function addOperator(type)
     if (lastNode === undefined)
     {
         error("Can't start the formula with an operator");
+        return;
     }
-    else if (lastNode.nodeType === nodeTypes.ROOT)
+    if (lastNode.nodeType === nodeTypes.OPERATION && lastNode.operandB === undefined)
+    {
+        error("Can't insert more than one operator in a row!");
+        return;
+    }
+
+    // Transforming node ROOT into an OPERATION
+    if (lastNode.nodeType === nodeTypes.ROOT)
     {
         lastNode.nodeType = nodeTypes.OPERATION;
         lastNode.operator = type;
-    }
-    else
-    {
-        let newNode = new MathNode(lastNode, type);
-        addNode(newNode);
+        lastNode = root; // regardless of the precedence, this is the topmost priority now
+        
+        //updating display
         mainString += type;
+        update();
+        return;
     }
+
+    let newOp = new MathNode(undefined, type);
+
+    // New operator has <= precedence than root; setting it to new root
+    if (isPrecedent(type) <= isPrecedent(root.operator))
+    {
+        // chaining previous root to the left of this new current root
+        newOp.operandA = root;
+        root = newOp;
+
+        //updating display and lastNode
+        lastNode = newOp;
+        mainString += type;
+        update();
+        return;
+    }
+
+    // New operator has > precedence; insert under right spine
+    let node = root;
+    // Walk while the RIGHT CHILD is an operation with precedence >= new op
+    while ( node.operandB &&
+            node.operandB.nodeType === nodeTypes.OPERATION &&
+            isPrecedent(node.operandB.operator) >= isPrecedent(type))
+    {
+        node = node.operandB;
+    }
+
+    // Insert between node and its right child
+    newOp.operandA = node.operandB; // left side of new op is what used to be node's right
+    node.operandB = newOp;          // new op becomes the new right child
+
+    lastNode = newOp; // next digits will fill operandB of this new op
+    
+    //updating display
+    mainString += type;
     update();
 }
 
 function addOperand(stringKey)
 {
-    let key = parseInt(stringKey, 10);
-    if (verifyKey(key))
+    if (verifyKeyOperator(stringKey) >= 0)
     {
-        if (lastNode === undefined)
+        if (stringKey !== "=" && stringKey !== "Enter")
         {
-            let newNode = new MathNode(new MathNode(key), undefined, true);
-            rootNode = newNode;
-            addNode(newNode);
+            addOperator(stringKey);
         }
-        else if (lastNode.nodeType === nodeTypes.VALUE)
+        else
         {
-            lastNode.operandA = appendDigit(lastNode.operandA, key);
+            resolveAll();
         }
-        else if (lastNode.nodeType === nodeTypes.OPERATION)
-        {
-            // handling cases when the second operand of an operation is being appended into 
-            // a multi-digit number, or initilised for the first time
-            if (lastNode.operandB !== undefined)
-            {
-                lastNode.operandB.operandA = appendDigit(lastNode.operandB.operandA, key);
-            }
-            else
-            {
-                let newNode = new MathNode(key);
-                lastNode.operandB = newNode;
-            }
-        }
+        return;
+    }
 
+    if (!verifyKeyInt(stringKey)) return;
+
+    let key = parseInt(stringKey, 10);
+
+    if (!root)
+    {
+        let newRoot = new MathNode(new MathNode(key), undefined, true);
+        addNode(newRoot);
         mainString += stringKey;
         update();
+        return;
     }
+
+    // If lastNode is a VALUE, append its digits
+    if (lastNode.nodeType === nodeTypes.VALUE)
+    {
+        lastNode.operandA = appendDigit(lastNode.operandA, key);
+    }
+    // node ROOT was not transformed into an operation yet, appending digits
+    else if (lastNode.nodeType === nodeTypes.ROOT && lastNode.operator === undefined)
+    {
+        root.operandA.operandA = appendDigit(root.operandA.operandA, key);
+    }
+    // adding new operandB to lastNode or appending its existing operandB
+    else if (lastNode.nodeType === nodeTypes.OPERATION)
+    {
+        // operandB is undefined, creating new
+        if (!lastNode.operandB)
+        {
+            const val = new MathNode(key);
+            lastNode.operandB = val;
+            lastNode = val;
+            nodeTree.push(val);
+        }
+        // operandB is defined, appending its digits
+        else
+        {
+            const target = (lastNode.nodeType === nodeTypes.VALUE) ? lastNode : lastNode.operandB;
+            target.operandA = appendDigit(target.operandA, key);
+        }
+    }
+
+    // display update
+    mainString += stringKey;
+    update();
 }
 
 function resolveAll()
 {
-    if (lastNode === undefined)
+    if (!root)
     {
         error("Cannot evaluate formula, formula incomplete!");
+        return;
     }
-    if (lastNode.operandB !== undefined)
-    {
-        mainString = rootNode.resolve();
-        update();
-    }
-    else
+    else if (root.nodeType === nodeTypes.OPERATION && !root.operandB)
     {
         error("Cannot evaluate formula, last binary operator has no second operand!");
+        return;
     }
+
+    let result = root.resolve();
+    mainString = result;
+    update();
+
+    // Reseting all except for the result value
+    nodeTree = [];
+    root = new MathNode(new MathNode(result), undefined, true);
+    lastNode = root;
+    nodeTree.push(root);
 }
 // ---
 
@@ -188,24 +270,63 @@ function error(message)
 function addNode(newNode)
 {
     nodeTree.push(newNode);
+    if (root === undefined) {root = newNode;}
     lastNode = newNode;
+    
 }
 
-function verifyKey(key)
+// verifying that the key is contained within allowedNumKeys
+function verifyKeyInt(key)
 {
-    let intKey = parseInt(key, 10);
-    for (let i = 0; i < allowedKeys.length; i++)
+    try
     {
-        if (intKey === allowedKeys[i])
+        let intKey = parseInt(key, 10);
+        for (let i = 0; i < allowedNumKeys.length; i++)
         {
-            return true;
+            if (intKey === allowedNumKeys[i])
+            {
+                return true;
+            }
         }
     }
+    catch { }
     return false;
+}
+
+// verifying that the key is contained within allowedOperatorKeys
+function verifyKeyOperator(key)
+{
+    for (let i = 0; i < allowedOperatorKeys.length; i++)
+    {
+        if (key === allowedOperatorKeys[i])
+        {
+            // returns which operator it is as per the array
+            return i;
+        }
+    }
+    // not a supported operator
+    return -1;
 }
 
 function appendDigit(a, b)
 {
     return parseInt(a.toString() + b.toString(), 10);
+}
+
+// evaluating operation precedence
+// 0 = value
+// 1 = + || -
+// 2 = * || /
+function isPrecedent(op)
+{
+    if (op === "+" || op === "-")
+    {
+        return 1;
+    }
+    if (op === "*" || op === "/")
+    {
+        return 2;
+    }
+    return 0;
 }
 // ---
