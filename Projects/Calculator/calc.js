@@ -8,7 +8,7 @@ const btnIds =
 }
 const allowedNumKeys =
 [
-    0, 1, 2, 3, 4, 5, 6, 7, 8, 9
+    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, "."
 ]
 const allowedOperatorKeys =
 [
@@ -80,6 +80,7 @@ let root = undefined;
 let lastNode = undefined;
 
 let mainString = "";
+let isAppendingFloat = false;
 // ---
 
 // listener initialisation
@@ -118,6 +119,12 @@ function addOperator(type)
     {
         error("Can't insert more than one operator in a row!");
         return;
+    }
+
+    // ending float creation
+    if (isAppendingFloat)
+    {
+        isAppendingFloat = false;
     }
 
     // Transforming node ROOT into an OPERATION
@@ -172,6 +179,7 @@ function addOperator(type)
 
 function addOperand(stringKey)
 {
+    // catches other keyboard inputs
     if (verifyKeyOperator(stringKey) >= 0)
     {
         if (stringKey !== "=" && stringKey !== "Enter")
@@ -187,8 +195,37 @@ function addOperand(stringKey)
 
     if (!verifyKeyInt(stringKey)) return;
 
-    let key = parseInt(stringKey, 10);
+    // guard catching creating a new float number
+    if (stringKey === "." && !isAppendingFloat)
+    {
+        // catching a number that'd start with a decimal point
+        if (lastNode.nodeType === nodeTypes.OPERATION && lastNode.operandB === undefined)
+        {
+            error("Cannot start a number with a decimal point!");
+            return;
+        }
+        isAppendingFloat = true;
+        mainString += stringKey;
+        update();
+        return;
+    }
+    // dealing with digits
+    else if (isAppendingFloat)
+    {
+        // catching "." while already placing the decimal digits
+        if (stringKey === ".")
+        {
+            error("Cannot put a decimal point into the decimal digits!");
+            return;
+        }
+        let key = parseInt(stringKey, 10);
+        createFloat(key);
+        return;
+    }
 
+    // dealing with digits
+    let key = parseInt(stringKey, 10);
+    // creating a new ROOT node if there's nothing in the nodeTree yet
     if (!root)
     {
         let newRoot = new MathNode(new MathNode(key), undefined, true);
@@ -222,7 +259,7 @@ function addOperand(stringKey)
         // operandB is defined, appending its digits
         else
         {
-            const target = (lastNode.nodeType === nodeTypes.VALUE) ? lastNode : lastNode.operandB;
+            const target = lastNode.operandB;
             target.operandA = appendDigit(target.operandA, key);
         }
     }
@@ -254,6 +291,7 @@ function resolveAll()
     root = new MathNode(new MathNode(result), undefined, true);
     lastNode = root;
     nodeTree.push(root);
+    isAppendingFloat = false;
 }
 // ---
 
@@ -278,6 +316,10 @@ function addNode(newNode)
 // verifying that the key is contained within allowedNumKeys
 function verifyKeyInt(key)
 {
+    if (key === ".")
+    {
+        return true;
+    }
     try
     {
         let intKey = parseInt(key, 10);
@@ -289,7 +331,10 @@ function verifyKeyInt(key)
             }
         }
     }
-    catch { }
+    catch
+    {
+       
+    }
     return false;
 }
 
@@ -313,6 +358,28 @@ function appendDigit(a, b)
     return parseInt(a.toString() + b.toString(), 10);
 }
 
+function appendFloat(a, b)
+{
+    if (a.toString().includes("."))
+    {
+        return parseFloat(a.toString() + b.toString());
+    }
+    return parseFloat(a.toString() + "." + b.toString());
+}
+
+function createFloat(decDigit)
+{
+    let node = getActiveValueNode();
+    if (!node) { error("No number to append decimal digits to."); return; }
+
+    let current = node.operandA;
+    let next = appendFloat(current, decDigit);
+    node.operandA = next;
+
+    mainString += decDigit.toString();
+    update();
+}
+
 // evaluating operation precedence
 // 0 = value
 // 1 = + || -
@@ -328,5 +395,28 @@ function isPrecedent(op)
         return 2;
     }
     return 0;
+}
+function getActiveValueNode()
+{
+    if (!root) {return null;}
+
+    // the node is a VALUE, can be edited right away
+    if (lastNode.nodeType === nodeTypes.VALUE)
+    {
+        return lastNode;
+    }
+
+    // lastNode is an untransformed ROOT, append its operandA digits
+    if (lastNode.nodeType === nodeTypes.ROOT && lastNode.operator === undefined)
+    {
+        return root.operandA;
+    }
+
+    // if the operandB exists, return it, else this can't be made into a float
+    if (lastNode.nodeType === nodeTypes.OPERATION)
+    {
+        return lastNode.operandB || null;
+    }
+    return null;
 }
 // ---
