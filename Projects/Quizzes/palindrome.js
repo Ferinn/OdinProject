@@ -8,49 +8,22 @@ function initListeners()
 {
     let evalBtn = document.querySelector("#eval-btn");
     let resetBtn = document.querySelector("#reset-btn");
+    let inputBox = document.querySelector("#input-box");
 
     evalBtn.addEventListener("click", evaluate);
     resetBtn.addEventListener("click", reset);
-
-
-    document.addEventListener("keyup", (e) => appendExpression(e.key));
+    inputBox.addEventListener("change", processInput);
 }
 
-let isFirstLetter = true;
-function appendExpression(key)
+function processInput()
 {
-    if (isAllowed.test(key))
-    {
-        if (isFirstLetter)
-        {
-            inputBox.textContent = "";
-            isFirstLetter = false;
-        }
-        currentExpression += key;
-        inputBox.textContent += key;
-    }
-    else
-    {
-        switch (key)
-        {
-            case "Enter":
-                evaluate();
-                break;
-            case "Backspace":
-                currentExpression = currentExpression.substring(0, currentExpression.length - 1);
-                inputBox.textContent = currentExpression;
-                break;
-            case "Delete":
-                reset();
-                break;
-        }
-    }
+    currentExpression = inputBox.value.toString();
+    console.log(currentExpression);
 }
 
 function reset()
 {
     currentExpression = "";
-    isFirstLetter = true;
     inputBox.textContent = "Type an expression to be evaluated!";
     outputBox.textContent = "Result!";
 }
@@ -62,7 +35,6 @@ function evaluate()
     expression = expression === null ? "" : expression.join("");
 
     expression = expression.toLowerCase();
-    console.log(expression);
     let length = expression.length;
 
     for (let jawL = 0, jawR = length - 1;
@@ -81,7 +53,6 @@ function evaluate()
 // --- Helper Functions
 const regexIsLetter = /^[A-Za-z]$/;
 const isAlphabetic = /[A-Za-z]/g;
-const isAllowed = /^[A-Za-z,\.?!\s]$/;
 function isLetter(key)
 {
     return regexIsLetter.test(key);
